@@ -1,6 +1,6 @@
 # codespaces
 
-[![Open in GitHub Codespaces](https://codespaces.new/asw101/codespaces/tree/test?devcontainer_path=.devcontainer%2Feverything%2Fdevcontainer.json)
+[![Open in GitHub Codespaces]](https://codespaces.new/asw101/codespaces/tree/test?devcontainer_path=.devcontainer%2Feverything%2Fdevcontainer.json)
 
 check azure cli installed
 
