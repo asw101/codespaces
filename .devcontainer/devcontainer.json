@@ -1,6 +1,5 @@
 {
 	"image": "mcr.microsoft.com/devcontainers/universal:2",
-	"postCreateCommand": "bash -lc 'set -e; if ! command -v wassette >/dev/null 2>&1; then curl -fsSL https://raw.githubusercontent.com/microsoft/wassette/main/install.sh | bash; fi'",
 	"customizations": {
 		"vscode": {
 			"extensions": [

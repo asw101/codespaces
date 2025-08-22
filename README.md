@@ -14,7 +14,9 @@ Quickstart, no template.
 
 ## Wassette CLI
 
-This Codespace installs the Wassette CLI automatically via `.devcontainer/devcontainer.json`.
+Use the Wassette variant of the devcontainer to auto-install the CLI.
+
+[![Open Wassette in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fwassette%2Fdevcontainer.json)
 
 - Verify: `wassette --version`
 - Run MCP server over stdio: `wassette serve --stdio`
