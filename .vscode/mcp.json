@@ -1,0 +1,10 @@
+{
+  servers: {
+    wassette: {
+      type: stdio,
+      command: wassette,
+      args: [serve, --stdio]
+    }
+  },
+  inputs: []
+}
