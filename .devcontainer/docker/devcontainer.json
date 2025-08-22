@@ -1,0 +1,14 @@
+{
+  "name": "Docker Container",
+  "image": "ghcr.io/asw101/codespaces/devcontainer-custom:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "GitHub.copilot"
+      ]
+    }
+  },
+  "postCreateCommand": "echo 'Dev Container created successfully!'"
+}
