@@ -1,4 +1,4 @@
-# OpenAI Codex CLI Devcontainer (Docker-based)
+# OpenAI Codex CLI Devcontainer (Container-based)
 
 This devcontainer includes:
 - Go 1.25.0
