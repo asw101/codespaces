@@ -1,0 +1,18 @@
+{
+  "name": "Codespace - OpenAI Codex CLI (Docker)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "ms-azuretools.vscode-bicep",
+        "ms-azuretools.vscode-azureresourcegroups", 
+        "GitHub.copilot"
+      ]
+    }
+  },
+  "postStartCommand": "bash -lc 'if [ -z \"$OPENAI_API_KEY\" ]; then echo \"[codex] Tip: add an OPENAI_API_KEY Codespaces secret.\"; fi; codex --version || true'"
+}
