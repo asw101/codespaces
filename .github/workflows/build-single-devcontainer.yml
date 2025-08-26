@@ -1,4 +1,4 @@
-name: Publish DevContainer Image to GHCR
+name: Build Single DevContainer
 
 on:
   workflow_dispatch:
@@ -52,14 +52,29 @@ jobs:
               ;;
           esac
 
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=${{ github.event.inputs.image_tag || 'latest' }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./.devcontainer/${{ github.event.inputs.devcontainer_choice }}
           file: ./.devcontainer/${{ github.event.inputs.devcontainer_choice }}/Dockerfile
           push: true
-          tags: | 
-            ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:${{ github.event.inputs.image_tag }}
-            ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ github.event.inputs.devcontainer_choice }}
+          cache-to: type=gha,mode=max,scope=${{ github.event.inputs.devcontainer_choice }}
+
+      - name: Output image details
+        run: |
+          echo "Built devcontainer: ${{ github.event.inputs.devcontainer_choice }}"
+          echo "Tags: ${{ steps.meta.outputs.tags }}"
