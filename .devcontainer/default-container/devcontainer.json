@@ -1,6 +1,9 @@
 {
   "name": "Default Development (Container)",
-  "image": "ghcr.io/asw101/codespaces/devcontainer-custom:latest",
+  "image": "ghcr.io/asw101/codespaces/default:latest",
+  // "build": {
+  //   "dockerfile": "Dockerfile"
+  // },
   "features": {},
   "customizations": {
     "vscode": {

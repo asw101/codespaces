@@ -1,8 +1,9 @@
 {
   "name": "Codex AI Development (Container)",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "image": "ghcr.io/asw101/codespaces/codex:latest",
+  // "build": {
+  //   "dockerfile": "Dockerfile"
+  // },
   "features": {},
   "customizations": {
     "vscode": {
