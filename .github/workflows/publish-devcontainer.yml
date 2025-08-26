@@ -8,9 +8,9 @@ on:
         required: true
         type: choice
         options:
-          - 'docker'
-          - 'codex-docker'
-        default: 'docker'
+          - 'default-container'
+          - 'codex-container'
+        default: 'default-container'
       image_tag:
         description: 'Image tag (e.g., latest, v1.0.0)'
         required: false
@@ -37,6 +37,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set image name
+        id: image-name
+        run: |
+          case "${{ github.event.inputs.devcontainer_choice }}" in
+            "default-container")
+              echo "name=default" >> $GITHUB_OUTPUT
+              ;;
+            "codex-container")
+              echo "name=codex" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "name=${{ github.event.inputs.devcontainer_choice }}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -44,7 +59,7 @@ jobs:
           file: ./.devcontainer/${{ github.event.inputs.devcontainer_choice }}/Dockerfile
           push: true
           tags: | 
-            ghcr.io/${{ github.repository }}/devcontainer-${{ github.event.inputs.devcontainer_choice }}:${{ github.event.inputs.image_tag }}
-            ghcr.io/${{ github.repository }}/devcontainer-${{ github.event.inputs.devcontainer_choice }}:latest
+            ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:${{ github.event.inputs.image_tag }}
+            ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

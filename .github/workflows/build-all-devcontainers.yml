@@ -61,11 +61,26 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set image name
+        id: image-name
+        run: |
+          case "${{ matrix.devcontainer }}" in
+            "default-container")
+              echo "name=default" >> $GITHUB_OUTPUT
+              ;;
+            "codex-container")
+              echo "name=codex" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "name=${{ matrix.devcontainer }}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/devcontainer-${{ matrix.devcontainer }}
+          images: ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
