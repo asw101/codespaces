@@ -1,5 +1,5 @@
 {
-  "name": "Docker Container",
+  "name": "Default Development (Container)",
   "image": "ghcr.io/asw101/codespaces/devcontainer-custom:latest",
   "features": {},
   "customizations": {
