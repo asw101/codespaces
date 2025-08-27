@@ -15,6 +15,6 @@
     }
   },
   "postCreateCommand": "bash -lc 'mkdir -p .vscode && if [ ! -f .vscode/mcp.json ]; then cp /opt/wassette/mcp.json .vscode/mcp.json; fi'",
-  "postStartCommand": "bash -lc 'set -e; echo \u0027[ai-container] Versions:\u0027; node -v; npm -v; go version; az version --help >/dev/null 2>&1 && echo azure-cli installed || true; claude --version || true; gemini --version || true; wassette --version || true'"
+  "postStartCommand": "bash -lc 'set -e; echo \u0027[ai-container] Versions:\u0027; node -v; npm -v; go version; az version --help >/dev/null 2>&1 && echo azure-cli installed || true; claude --version || true; gemini --version || true; crush --version || true; wassette --version || true'"
 }
 
