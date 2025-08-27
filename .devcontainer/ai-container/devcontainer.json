@@ -1,6 +1,6 @@
 {
   "name": "AI (Container)",
-  "image": "ghcr.io/asw101/codespaces/ai-container:latest",
+  "image": "ghcr.io/asw101/codespaces/ai:latest",
   // "build": {
   //   "dockerfile": "Dockerfile"
   // },

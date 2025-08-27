@@ -1,6 +1,6 @@
 {
   "name": "LLM CLI (Container)",
-  "image": "ghcr.io/asw101/codespaces/llm-container:latest",
+  "image": "ghcr.io/asw101/codespaces/llm:latest",
   // "build": {
   //   "dockerfile": "Dockerfile"
   // },

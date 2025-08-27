@@ -1,6 +1,6 @@
 {
   "name": "Wassette (Container)",
-  "image": "ghcr.io/asw101/codespaces/wassette-container:latest",
+  "image": "ghcr.io/asw101/codespaces/wassette:latest",
   // "build": {
   //   "dockerfile": "Dockerfile"
   // },
