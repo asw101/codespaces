@@ -11,6 +11,7 @@ on:
           - 'default-container'
           - 'codex-container'
           - 'ai-container'
+          - 'llm-container'
           - 'wassette-container'
         default: 'default-container'
       image_tag:
@@ -42,17 +43,10 @@ jobs:
       - name: Set image name
         id: image-name
         run: |
-          case "${{ github.event.inputs.devcontainer_choice }}" in
-            "default-container")
-              echo "name=default" >> $GITHUB_OUTPUT
-              ;;
-            "codex-container")
-              echo "name=codex" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "name=${{ github.event.inputs.devcontainer_choice }}" >> $GITHUB_OUTPUT
-              ;;
-          esac
+          devcontainer="${{ github.event.inputs.devcontainer_choice }}"
+          # Remove -container suffix if it exists
+          image_name="${devcontainer%-container}"
+          echo "name=$image_name" >> $GITHUB_OUTPUT
 
       - name: Extract metadata
         id: meta

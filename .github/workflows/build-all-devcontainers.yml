@@ -64,17 +64,10 @@ jobs:
       - name: Set image name
         id: image-name
         run: |
-          case "${{ matrix.devcontainer }}" in
-            "default-container")
-              echo "name=default" >> $GITHUB_OUTPUT
-              ;;
-            "codex-container")
-              echo "name=codex" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "name=${{ matrix.devcontainer }}" >> $GITHUB_OUTPUT
-              ;;
-          esac
+          devcontainer="${{ matrix.devcontainer }}"
+          # Remove -container suffix if it exists
+          image_name="${devcontainer%-container}"
+          echo "name=$image_name" >> $GITHUB_OUTPUT
 
       - name: Extract metadata
         id: meta
