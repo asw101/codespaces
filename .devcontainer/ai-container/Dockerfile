@@ -51,30 +51,29 @@ RUN set -eux; \
 # Install Claude Code, Gemini CLI, Codex CLI, and Crush globally via npm
 RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex @charmland/crush
 
-# Install prerequisites and Wassette (without using the CLI installer)
-# Install prerequisites and Wassette (without using the CLI installer)
+# Install Wassette from source using Cargo
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WASSETTE_VERSION=v0.2.0
+ARG WASSETTE_REF=main
+ARG WASSETTE_REF_TYPE=branch
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends ca-certificates curl tar git; \
-    rm -rf /var/lib/apt/lists/*; \
-    arch="$(uname -m)"; \
-    case "$arch" in \
-      x86_64|amd64) cpu="amd64" ;; \
-      aarch64|arm64) cpu="arm64" ;; \
-      *) echo "Unsupported architecture: $arch"; exit 1 ;; \
-    esac; \
-    ver="${WASSETTE_VERSION#v}"; \
-    asset="wassette_${ver}_linux_${cpu}.tar.gz"; \
-    url="https://github.com/microsoft/wassette/releases/download/${WASSETTE_VERSION}/${asset}"; \
-    echo "Downloading $url"; \
-    curl -fsSL "$url" -o /tmp/wassette.tgz; \
-    tar -xzf /tmp/wassette.tgz -C /tmp; \
-    bin_path="$(find /tmp -maxdepth 2 -type f -name 'wassette' | head -n1)"; \
-    install -m 0755 "$bin_path" /usr/local/bin/wassette; \
-    rm -rf /tmp/wassette*; \
-    wassette --version || true
+    apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev; \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Wassette from GitHub source as vscode user (since Rust is installed for vscode user)
+USER vscode
+RUN . "$HOME/.cargo/env" \
+    && echo "Installing Wassette MCP Server with cargo..." \
+    && cargo install --git https://github.com/microsoft/wassette --${WASSETTE_REF_TYPE} ${WASSETTE_REF} wassette-mcp-server \
+    && echo "Listing cargo bin directory:" \
+    && ls -la "$HOME/.cargo/bin/" \
+    && echo "Testing wassette command:" \
+    && wassette --version
+USER root
+
+# Make wassette available system-wide by creating a symlink
+RUN ln -s /home/vscode/.cargo/bin/wassette /usr/local/bin/wassette \
+    && ls -la /usr/local/bin/wassette
 
 # Provide a default MCP config inside the image for VS Code
 COPY mcp.json /opt/wassette/mcp.json
