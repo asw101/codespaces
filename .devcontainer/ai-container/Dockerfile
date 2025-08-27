@@ -8,14 +8,19 @@ RUN wget -q -O go.tar.gz https://go.dev/dl/go1.25.0.linux-amd64.tar.gz \
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Install Rust (rustup with latest stable, system-wide)
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:${PATH}
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable \
     && rustc --version && cargo --version
+
+# --- Cargo ---
+ENV CARGO_HOME=/home/vscode/.cargo
+ENV RUSTUP_HOME=/home/vscode/.rustup
+ENV PATH=${CARGO_HOME}/bin:${PATH}
+
+RUN mkdir -p ${CARGO_HOME} /home/vscode/.rustup \
+    && chown -R vscode:vscode ${CARGO_HOME} /home/vscode/.rustup
 
 # Install Node.js LTS (required for CLIs)
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
@@ -41,6 +46,7 @@ RUN set -eux; \
 # Install Claude Code, Gemini CLI, Codex CLI, and Crush globally via npm
 RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex @charmland/crush
 
+# Install prerequisites and Wassette (without using the CLI installer)
 # Install prerequisites and Wassette (without using the CLI installer)
 ARG DEBIAN_FRONTEND=noninteractive
 ARG WASSETTE_VERSION=v0.2.0
