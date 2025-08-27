@@ -28,3 +28,9 @@ Quickstart, no template.
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fwassette-container%2Fdevcontainer.json)
 
 Quickstart, no template.
+
+## AI (Container)
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fai-container%2Fdevcontainer.json)
+
+Quickstart, no template.
