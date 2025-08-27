@@ -1,0 +1,20 @@
+{
+  "name": "Wassette (Container)",
+  "image": "ghcr.io/asw101/codespaces/wassette-container:latest",
+  // "build": {
+  //   "dockerfile": "Dockerfile"
+  // },
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "golang.go"
+      ]
+    }
+  },
+  "postCreateCommand": "bash -lc 'mkdir -p .vscode && if [ ! -f .vscode/mcp.json ]; then cp /opt/wassette/mcp.json .vscode/mcp.json; fi'",
+  "postStartCommand": "bash -lc 'wassette --version || true'"
+}
+

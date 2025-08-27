@@ -10,6 +10,7 @@ on:
         options:
           - 'default-container'
           - 'codex-container'
+          - 'wassette-container'
         default: 'default-container'
       image_tag:
         description: 'Image tag (e.g., latest, v1.0.0)'
