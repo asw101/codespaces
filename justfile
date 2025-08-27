@@ -94,3 +94,46 @@ test-tools tag="latest":
         echo '=== NPM global packages ==='
         npm list -g --depth=0
     "
+
+# GitHub Actions Commands
+# =======================
+
+# Trigger GitHub Action to build a devcontainer
+gh-build container="ai-container" tag="latest":
+    #!/usr/bin/env bash
+    echo "🚀 Triggering GitHub Action to build {{container}}..."
+    if gh workflow run "Build Single DevContainer" \
+        --field devcontainer_choice={{container}} \
+        --field image_tag={{tag}}; then
+        echo "✅ GitHub Action triggered successfully"
+        echo "💡 Use 'just gh-watch' to monitor progress"
+        echo "💡 Use 'just gh-list' to see recent runs"
+    else
+        echo "❌ Failed to trigger GitHub Action"
+        exit 1
+    fi
+
+# List recent GitHub Action workflow runs
+gh-list limit="10":
+    #!/usr/bin/env bash
+    echo "📋 Recent GitHub Action runs:"
+    gh run list --workflow="build-single-devcontainer.yml" --limit {{limit}}
+
+# Watch the latest GitHub Action workflow run
+gh-watch:
+    #!/usr/bin/env bash
+    echo "👀 Watching latest GitHub Action run..."
+    echo "Press Ctrl+C to stop watching"
+    gh run watch
+
+# Show logs for the latest GitHub Action run
+gh-logs:
+    #!/usr/bin/env bash
+    echo "📄 Showing logs for latest GitHub Action run..."
+    gh run view --log
+
+# Complete workflow: trigger build and watch
+gh-build-and-watch container="ai-container" tag="latest":
+    just gh-build {{container}} {{tag}}
+    sleep 2
+    just gh-watch
