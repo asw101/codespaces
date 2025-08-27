@@ -10,9 +10,7 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 # Install Rust (rustup with latest stable, system-wide)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable \
-    && rustc --version && cargo --version
+    && rm -rf /var/lib/apt/lists/*
 
 # --- Cargo ---
 ENV CARGO_HOME=/home/vscode/.cargo
@@ -21,6 +19,13 @@ ENV PATH=${CARGO_HOME}/bin:${PATH}
 
 RUN mkdir -p ${CARGO_HOME} /home/vscode/.rustup \
     && chown -R vscode:vscode ${CARGO_HOME} /home/vscode/.rustup
+
+# Install Rust as the vscode user
+USER vscode
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable \
+    && . "$HOME/.cargo/env" \
+    && rustc --version && cargo --version
+USER root
 
 # Install Node.js LTS (required for CLIs)
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
