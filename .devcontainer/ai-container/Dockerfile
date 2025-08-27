@@ -25,8 +25,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash \
     && az bicep install
 
-# Install Claude Code and Gemini CLI globally via npm
-RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli
+# Install Claude Code, Gemini CLI, Codex CLI globally via npm
+RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex
 
 # Install prerequisites and Wassette (without using the CLI installer)
 ARG DEBIAN_FRONTEND=noninteractive
