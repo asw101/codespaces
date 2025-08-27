@@ -10,6 +10,7 @@ on:
         options:
           - 'default-container'
           - 'codex-container'
+          - 'ai-container'
           - 'wassette-container'
         default: 'default-container'
       image_tag:
