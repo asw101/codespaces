@@ -51,6 +51,17 @@ RUN set -eux; \
 # Install Claude Code, Gemini CLI, Codex CLI, and Crush globally via npm
 RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex @charmland/crush
 
+# Configure a user-scoped npm global prefix for the vscode user to avoid EACCES
+# when running `npm install -g` inside Codespaces.
+RUN mkdir -p /home/vscode/.npm-global \
+    && chown -R vscode:vscode /home/vscode/.npm-global
+USER vscode
+RUN npm config set prefix ~/.npm-global
+USER root
+# Ensure the user npm bin is on PATH for interactive shells and Docker execs
+ENV PATH="/home/vscode/.npm-global/bin:${PATH}"
+RUN printf 'export PATH="/home/vscode/.npm-global/bin:$PATH"\n' > /etc/profile.d/npm-global.sh
+
 # Install Wassette from source using Cargo
 ARG DEBIAN_FRONTEND=noninteractive
 ARG WASSETTE_REF=main
