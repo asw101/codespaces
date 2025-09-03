@@ -2,5 +2,9 @@
     "editor.fontSize": 21,
     "terminal.integrated.fontSize": 21,
     "debug.console.fontSize": 21,
-    "chat.mcp.autostart": "onlyNew"
+    "chat.mcp.autostart": "onlyNew",
+    // Default image for ai-container; can be overridden in your environment
+    "dev.containers.defaultEnv": {
+        "AI_IMAGE": "ghcr.io/asw101/codespaces/ai:latest"
+    }
 }

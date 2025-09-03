@@ -1,0 +1,5 @@
+{
+  // Local override: point to a custom prebuilt image instead of the default
+  // Copy this file to devcontainer.local.json and adjust the image/tag
+  "image": "ghcr.io/your-org/your-ai-image:latest"
+}

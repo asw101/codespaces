@@ -1,0 +1,2 @@
+# Ignore local overrides for devcontainers
+**/devcontainer.local.json
