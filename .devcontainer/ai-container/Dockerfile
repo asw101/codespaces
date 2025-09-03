@@ -48,6 +48,11 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
+# Install prerequisites for Homebrew (Linuxbrew)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential procps curl file git \
+    && rm -rf /var/lib/apt/lists/*
+
 ## Configure a user-scoped npm global prefix for the vscode user to avoid EACCES
 ## when running `npm install -g` inside Codespaces.
 RUN mkdir -p /home/vscode/.npm-global \
@@ -61,8 +66,19 @@ RUN printf 'export PATH="/home/vscode/.npm-global/bin:$PATH"\n' > /etc/profile.d
 USER vscode
 RUN npm config set prefix ~/.npm-global
 
-# Install Claude Code, Gemini CLI, Codex CLI, and Crush globally via npm as vscode user
-RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex @charmland/crush
+# Install Homebrew (Linuxbrew) as vscode user and add to PATH; then install Codex via brew
+RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
+    && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/vscode/.bashrc \
+    && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
+    && brew update \
+    && brew install codex
+USER root
+RUN printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/profile.d/homebrew.sh
+USER vscode
+
+# Install Claude Code, Gemini CLI, and Crush globally via npm as vscode user
+# (Codex is installed via Homebrew to avoid npm/ripgrep download issues)
+RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush
 USER root
 
 # Install Wassette from source using Cargo
