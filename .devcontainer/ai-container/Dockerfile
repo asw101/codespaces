@@ -28,7 +28,7 @@ RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-too
 USER root
 
 # Install Node.js LTS (required for CLIs)
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs
 
 # Install Azure CLI and Bicep (similar to codex-container)
@@ -48,19 +48,22 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code, Gemini CLI, Codex CLI, and Crush globally via npm
-RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex @charmland/crush
-
-# Configure a user-scoped npm global prefix for the vscode user to avoid EACCES
-# when running `npm install -g` inside Codespaces.
+## Configure a user-scoped npm global prefix for the vscode user to avoid EACCES
+## when running `npm install -g` inside Codespaces.
 RUN mkdir -p /home/vscode/.npm-global \
     && chown -R vscode:vscode /home/vscode/.npm-global
-USER vscode
-RUN npm config set prefix ~/.npm-global
-USER root
+
 # Ensure the user npm bin is on PATH for interactive shells and Docker execs
 ENV PATH="/home/vscode/.npm-global/bin:${PATH}"
 RUN printf 'export PATH="/home/vscode/.npm-global/bin:$PATH"\n' > /etc/profile.d/npm-global.sh
+
+# Switch to vscode and set npm prefix for that user
+USER vscode
+RUN npm config set prefix ~/.npm-global
+
+# Install Claude Code, Gemini CLI, Codex CLI, and Crush globally via npm as vscode user
+RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex @charmland/crush
+USER root
 
 # Install Wassette from source using Cargo
 ARG DEBIAN_FRONTEND=noninteractive
