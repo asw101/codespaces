@@ -71,7 +71,8 @@ RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.co
     && echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/vscode/.bashrc \
     && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
     && brew update \
-    && brew install codex
+    && brew install codex \
+    && brew install sst/tap/opencode
 USER root
 RUN printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/profile.d/homebrew.sh
 USER vscode
