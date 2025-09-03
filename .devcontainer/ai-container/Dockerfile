@@ -72,9 +72,11 @@ RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.co
     && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" \
     && brew update \
     && brew install codex \
-    && brew install sst/tap/opencode
+    && brew install sst/tap/opencode \
+    && brew install just
 USER root
 RUN printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/profile.d/homebrew.sh
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 USER vscode
 
 # Install Claude Code, Gemini CLI, and Crush globally via npm as vscode user
