@@ -79,9 +79,9 @@ RUN printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/pro
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}"
 USER vscode
 
-# Install Claude Code, Gemini CLI, and Crush globally via npm as vscode user
+# Install Claude Code, Gemini CLI, Crush, and GitHub Copilot CLI globally via npm as vscode user
 # (Codex is installed via Homebrew to avoid npm/ripgrep download issues)
-RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush
+RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush @github/copilot
 USER root
 
 # Install Wassette from source using Cargo
