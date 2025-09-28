@@ -94,7 +94,14 @@ USER root
 
 # Install Simon Willison's LLM CLI in an isolated venv for consistency
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip \
+    && apt-get install -y --no-install-recommends \
+        python3 \
+        python3-venv \
+        python3-pip \
+        python3-dev \
+        build-essential \
+        curl \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv /opt/llm-env \
@@ -103,12 +110,13 @@ ENV PATH="/opt/llm-env/bin:${PATH}"
 
 USER vscode
 RUN /opt/llm-env/bin/pip install --upgrade pip \
-    && /opt/llm-env/bin/pip install llm \
-    && /opt/llm-env/bin/llm install llm-gpt4all \
-    && /opt/llm-env/bin/llm install llm-claude-3 \
-    && /opt/llm-env/bin/llm install llm-gemini \
-    && /opt/llm-env/bin/llm install llm-ollama \
-    && /opt/llm-env/bin/llm install llm-foundry
+    && /opt/llm-env/bin/pip install \
+        llm \
+        llm-gpt4all \
+        llm-claude-3 \
+        llm-gemini \
+        llm-ollama \
+        llm-foundry
 USER root
 
 # Install Wassette from source using Cargo
