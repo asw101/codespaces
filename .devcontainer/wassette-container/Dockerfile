@@ -1,8 +1,16 @@
 # Base devcontainer image
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
+ARG TARGETARCH=amd64
+ENV GO_VERSION=1.25.0
+
 # Install Go (match default-container)
-RUN wget -q -O go.tar.gz https://go.dev/dl/go1.25.0.linux-amd64.tar.gz \
+RUN case "${TARGETARCH}" in \
+        amd64) GO_ARCH=amd64 ;; \
+        arm64) GO_ARCH=arm64 ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac \
+    && wget -q -O go.tar.gz "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" \
     && tar -C /usr/local -xzf go.tar.gz \
     && rm go.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
@@ -15,11 +23,10 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends ca-certificates curl tar git; \
     rm -rf /var/lib/apt/lists/*; \
-    arch="$(uname -m)"; \
-    case "$arch" in \
-      x86_64|amd64) cpu="amd64" ;; \
-      aarch64|arm64) cpu="arm64" ;; \
-      *) echo "Unsupported architecture: $arch"; exit 1 ;; \
+    case "${TARGETARCH}" in \
+      amd64) cpu="amd64" ;; \
+      arm64) cpu="arm64" ;; \
+      *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
     esac; \
     ver="${WASSETTE_VERSION#v}"; \
     asset="wassette_${ver}_linux_${cpu}.tar.gz"; \
@@ -38,4 +45,3 @@ CMD ["bash"]
 # Provide a default MCP config inside the image for VS Code
 # The devcontainer.json will copy this into the workspace's .vscode on create if missing
 COPY mcp.json /opt/wassette/mcp.json
-
