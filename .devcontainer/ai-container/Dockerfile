@@ -93,12 +93,12 @@ RUN npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush
 USER root
 
 # Install Simon Willison's LLM CLI in an isolated venv for consistency
-USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-venv python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m venv /opt/llm-env
+RUN python3 -m venv /opt/llm-env \
+    && chown -R vscode:vscode /opt/llm-env
 ENV PATH="/opt/llm-env/bin:${PATH}"
 
 USER vscode
