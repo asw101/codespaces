@@ -13,11 +13,16 @@ on:
           - 'ai-container'
           - 'llm-container'
           - 'wassette-container'
+          - 'just'
         default: 'default-container'
       image_tag:
         description: 'Image tag (e.g., latest, v1.0.0)'
         required: false
         default: 'latest'
+      build_args:
+        description: 'Additional build arguments (key=value pairs, one per line)'
+        required: false
+        type: string
 
 jobs:
   build-and-push:
@@ -48,6 +53,18 @@ jobs:
           image_name="${devcontainer%-container}"
           echo "name=$image_name" >> $GITHUB_OUTPUT
 
+      - name: Prepare build arguments
+        id: build-args
+        run: |
+          build_args="${{ github.event.inputs.build_args }}"
+          
+          # Output for the build step
+          if [[ -n "$build_args" ]]; then
+            echo "args<<EOF" >> $GITHUB_OUTPUT
+            echo "$build_args" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -68,6 +85,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: ${{ steps.build-args.outputs.args }}
           cache-from: type=gha,scope=${{ github.event.inputs.devcontainer_choice }}
           cache-to: type=gha,mode=max,scope=${{ github.event.inputs.devcontainer_choice }}
 
