@@ -1,0 +1,134 @@
+set shell := ["bash", "-uc"]
+
+arch := `dpkg --print-architecture`
+GO_VERSION := env_var_or_default("GO_VERSION", "1.25.1")
+TARGETARCH := env_var_or_default("TARGETARCH", arch)
+IMAGE := env_var_or_default("JUST_IMAGE", "just-dev:latest")
+CONTAINER_CMD := env_var_or_default("JUST_CONTAINER_CMD", "bash")
+WASSETTE_REF := env_var_or_default("WASSETTE_REF", "main")
+WASSETTE_REF_TYPE := env_var_or_default("WASSETTE_REF_TYPE", "branch")
+
+export CARGO_HOME := "/home/vscode/.cargo"
+export RUSTUP_HOME := "/home/vscode/.rustup"
+
+vscode := "sudo --preserve-env=PATH --set-home --login --user vscode"
+
+alias default := list
+
+list:
+    just --list
+
+install-go:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    GO_ARCH="$(case "{{TARGETARCH}}" in \
+        amd64) echo amd64 ;; \
+        arm64|arm64v8) echo arm64 ;; \
+        *) echo "Unsupported TARGETARCH: {{TARGETARCH}}" >&2; exit 1 ;; \
+    esac)"
+    apt-get update
+    apt-get install -y --no-install-recommends wget tar
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /usr/local/go
+    wget -q -O /tmp/go.tar.gz "https://go.dev/dl/go{{GO_VERSION}}.linux-${GO_ARCH}.tar.gz"
+    tar -C /usr/local -xzf /tmp/go.tar.gz
+    rm /tmp/go.tar.gz
+    /usr/local/go/bin/go version
+
+install-rust:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    apt-get update
+    apt-get install -y --no-install-recommends ca-certificates curl
+    rm -rf /var/lib/apt/lists/*
+    mkdir -p {{CARGO_HOME}} {{RUSTUP_HOME}}
+    chown -R vscode:vscode {{CARGO_HOME}} {{RUSTUP_HOME}}
+    {{vscode}} bash -lc 'curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable'
+    {{vscode}} bash -lc '. "$HOME/.cargo/env" && rustc --version && cargo --version'
+
+install-node:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+    apt-get install -y --no-install-recommends nodejs
+    rm -rf /var/lib/apt/lists/*
+    node --version
+    npm --version
+
+configure-npm-prefix:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    mkdir -p /home/vscode/.npm-global
+    chown -R vscode:vscode /home/vscode/.npm-global
+    printf 'export PATH="/home/vscode/.npm-global/bin:$PATH"\n' > /etc/profile.d/npm-global.sh
+    {{vscode}} bash -lc 'npm config set prefix ~/.npm-global'
+
+install-azure-cli:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    az version
+    az bicep install
+
+install-github-cli:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    apt-get update
+    apt-get install -y --no-install-recommends curl ca-certificates gnupg
+    mkdir -p -m 0755 /etc/apt/keyrings
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
+    apt-get update
+    apt-get install -y --no-install-recommends gh
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    gh --version
+
+install-homebrew:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    apt-get update
+    apt-get install -y --no-install-recommends build-essential procps curl file git
+    rm -rf /var/lib/apt/lists/*
+    {{vscode}} bash -lc 'if [ ! -d /home/linuxbrew/.linuxbrew ]; then NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; fi'
+    {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew update && brew install codex sst/tap/opencode'
+    printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/profile.d/homebrew.sh
+    {{vscode}} bash -lc 'if ! grep -q "brew shellenv" ~/.bashrc; then echo "eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"" >> ~/.bashrc; fi'
+
+install-cli-npm: configure-npm-prefix install-node
+    {{vscode}} bash -lc 'npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush @github/copilot'
+
+install-llm:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    apt-get update
+    apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-dev build-essential curl git
+    rm -rf /var/lib/apt/lists/*
+    python3 -m venv /opt/llm-env
+    chown -R vscode:vscode /opt/llm-env
+    {{vscode}} bash -lc '/opt/llm-env/bin/pip install --upgrade pip'
+    {{vscode}} bash -lc '/opt/llm-env/bin/pip install llm llm-gpt4all llm-claude-3 llm-gemini llm-ollama llm-foundry'
+
+install-wassette:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    apt-get update
+    apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev
+    rm -rf /var/lib/apt/lists/*
+    {{vscode}} bash -lc '. "$HOME/.cargo/env" && cargo install --git https://github.com/microsoft/wassette --{{WASSETTE_REF_TYPE}} {{WASSETTE_REF}} wassette-mcp-server && wassette --version'
+
+link-wassette: install-wassette
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    ln -sf /home/vscode/.cargo/bin/wassette /usr/local/bin/wassette
+    ls -la /usr/local/bin/wassette
+
+install-all: install-go install-rust install-node configure-npm-prefix install-azure-cli install-github-cli install-homebrew install-cli-npm install-llm install-wassette link-wassette
+    @echo "All components installed"
+
+run-docker:
+    docker run --rm -it -p 8080:8080 -v "$(pwd)":/pwd -w /pwd {{IMAGE}} {{CONTAINER_CMD}}
+
+run-macos-container:
+    container run --rm --publish 8080:8080 --volume "$(pwd)":/pwd --workdir /pwd {{IMAGE}} {{CONTAINER_CMD}}
