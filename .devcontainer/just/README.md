@@ -299,7 +299,7 @@ The repository includes a GitHub Actions workflow for building devcontainer imag
 2. Select the **Build Single DevContainer** workflow
 3. Click **Run workflow**
 4. Configure the build:
-   - **DevContainer to build**: Select `just-container`
+   - **DevContainer to build**: Select `just`
    - **Image tag**: Specify the tag (e.g., `latest`, `all`, `v1.0.0`)
    - **Build arguments**: Optional build arguments (comma-separated, e.g., `INSTALL_ALL=true,GO_VERSION=1.24.0`)
 
@@ -307,7 +307,7 @@ The repository includes a GitHub Actions workflow for building devcontainer imag
 
 **Minimal just container:**
 ```
-DevContainer: just-container
+DevContainer: just
 Image tag: latest
 Build arguments: (empty)
 ```
@@ -315,7 +315,7 @@ Result: `ghcr.io/owner/repo/just:latest`
 
 **Full just container with all components:**
 ```
-DevContainer: just-container
+DevContainer: just
 Image tag: all
 Build arguments: INSTALL_ALL=true
 ```
@@ -323,7 +323,7 @@ Result: `ghcr.io/owner/repo/just:all`
 
 **Custom configuration:**
 ```
-DevContainer: just-container
+DevContainer: just
 Image tag: go1.24-full
 Build arguments: INSTALL_ALL=true,GO_VERSION=1.24.0,TARGETARCH=arm64
 ```
