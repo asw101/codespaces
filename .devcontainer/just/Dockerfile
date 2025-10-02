@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 ARG TARGETARCH=amd64
 ARG GO_VERSION=1.25.0
+ARG INSTALL_ALL=false
 ENV TARGETARCH=${TARGETARCH}
 ENV GO_VERSION=${GO_VERSION}
 
@@ -28,5 +29,10 @@ RUN mkdir -p ${CARGO_HOME} /home/vscode/.rustup /home/vscode/.npm-global \
 WORKDIR /workspace
 COPY Justfile ./
 COPY mcp.json /opt/wassette/mcp.json
+
+# Optionally install all components during build
+RUN if [ "${INSTALL_ALL}" = "true" ]; then \
+        just install-all; \
+    fi
 
 CMD ["just", "--list"]
