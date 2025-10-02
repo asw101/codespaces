@@ -11,7 +11,7 @@ build-ai-container tag="latest":
     if docker build \
         -t codespaces-ai:{{tag}} \
         -t ghcr.io/asw101/codespaces/ai:{{tag}} \
-        .devcontainer/ai-container/; then
+        .; then
         echo "✅ Built ai-container as codespaces-ai:{{tag}}"
     else
         echo "❌ Build failed for ai-container"
@@ -23,7 +23,7 @@ test-ai-container tag="latest":
     #!/usr/bin/env bash
     echo "Starting ai-container for testing..."
     docker run -it --rm \
-        -v $(pwd):/workspace \
+        -v $(pwd)/../..:/workspace \
         -w /workspace \
         --name test-ai-container \
         codespaces-ai:{{tag}} \
@@ -34,14 +34,14 @@ run-ai-container tag="latest":
     #!/usr/bin/env bash
     echo "Starting ai-container in background..."
     docker run -d \
-        -v $(pwd):/workspace \
+        -v $(pwd)/../..:/workspace \
         -w /workspace \
         -p 8080:8080 \
         --name ai-container-service \
         codespaces-ai:{{tag}} \
         tail -f /dev/null
     echo "✅ ai-container running as 'ai-container-service'"
-    echo "Use 'just exec-ai-container' to get a shell"
+    echo "Use 'docker exec -it ai-container-service bash' to get a shell"
 
 # Stop the background ai-container service
 stop-ai-container:
