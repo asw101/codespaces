@@ -1,9 +1,10 @@
 # Dev container base image with Just pre-installed to orchestrate optional components
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
-ARG TARGETARCH=amd64
-ARG GO_VERSION=1.25.0
+ARG TARGETARCH
+ARG GO_VERSION=1.25.1
 ARG INSTALL_ALL=false
+
 ENV TARGETARCH=${TARGETARCH}
 ENV GO_VERSION=${GO_VERSION}
 
@@ -32,6 +33,7 @@ COPY mcp.json /opt/wassette/mcp.json
 
 # Optionally install all components during build
 RUN if [ "${INSTALL_ALL}" = "true" ]; then \
+        echo "Building for TARGETARCH=${TARGETARCH}" && \
         just install-all; \
     fi
 
