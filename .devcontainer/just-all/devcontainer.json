@@ -1,0 +1,27 @@
+{
+  "name": "Just Development Container (All Components)",
+  "image": "ghcr.io/asw101/codespaces/just:all",
+  // "build": {
+  //   "dockerfile": "../just/Dockerfile",
+  //   "args": {
+  //     "INSTALL_ALL": "true"
+  //   }
+  // },
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "rust-lang.rust-analyzer",
+        "redhat.java",
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven",
+        "vscjava.vscode-gradle",
+        "ms-azuretools.vscode-bicep",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "GitHub.copilot"
+      ]
+    }
+  },
+  "postStartCommand": "just --list"
+}

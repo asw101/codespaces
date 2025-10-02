@@ -2,6 +2,8 @@
 
 All containers below use quickstart with no template:
 
+- [Just (AI)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fjust-all%2Fdevcontainer.json)
+- [Just (Container)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fjust%2Fdevcontainer.json)
 - [AI (Container)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fai-container%2Fdevcontainer.json)
 - [Wassette (Container)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fwassette-container%2Fdevcontainer.json)
 - [LLM CLI (Container)](https://codespaces.new/asw101/codespaces?template=false&quickstart=1&devcontainer_path=.devcontainer%2Fllm-container%2Fdevcontainer.json)
