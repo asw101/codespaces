@@ -13,14 +13,14 @@ on:
           - 'ai-container'
           - 'llm-container'
           - 'wassette-container'
-          - 'just'
+          - 'just-container'
         default: 'default-container'
       image_tag:
         description: 'Image tag (e.g., latest, v1.0.0)'
         required: false
         default: 'latest'
       build_args:
-        description: 'Additional build arguments (key=value pairs, one per line)'
+        description: 'Build arguments (comma-separated, e.g., INSTALL_ALL=true,GO_VERSION=1.24.0)'
         required: false
         type: string
 
@@ -58,8 +58,9 @@ jobs:
         run: |
           build_args="${{ github.event.inputs.build_args }}"
           
-          # Output for the build step
+          # Convert comma-separated format to newline-separated for Docker
           if [[ -n "$build_args" ]]; then
+            build_args=$(echo "$build_args" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             echo "args<<EOF" >> $GITHUB_OUTPUT
             echo "$build_args" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
