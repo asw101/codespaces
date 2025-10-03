@@ -50,7 +50,27 @@ setup-completions:
     fi
     echo "Completions installed. Restart your shell or run: source ~/.bashrc (or ~/.zshrc)"
 
-install-go:
+# Update apt cache (idempotent - safe to call multiple times)
+# Use force=true to bypass cache check: just apt-update force=true
+apt-update force="false":
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    APT_CACHE_MARKER="/var/lib/apt/lists/lock"
+    # Check if apt cache exists and force is not set
+    if [ "{{force}}" != "true" ] && [ -f "$APT_CACHE_MARKER" ]; then
+        echo "apt cache already updated (found $APT_CACHE_MARKER), skipping..."
+        echo "Use 'just apt-update force=true' to force update"
+        exit 0
+    fi
+    apt-get update
+
+# Clean up apt cache to save space
+apt-cleanup:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    rm -rf /var/lib/apt/lists/*
+
+install-go: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
     GO_ARCH="$(case "{{TARGETARCH}}" in \
@@ -58,21 +78,23 @@ install-go:
         arm64|arm64v8) echo arm64 ;; \
         *) echo "Unsupported TARGETARCH: {{TARGETARCH}}" >&2; exit 1 ;; \
     esac)"
-    apt-get update
     apt-get install -y --no-install-recommends wget tar
-    rm -rf /var/lib/apt/lists/*
     rm -rf /usr/local/go
     wget -q -O /tmp/go.tar.gz "https://go.dev/dl/go{{GO_VERSION}}.linux-${GO_ARCH}.tar.gz"
     tar -C /usr/local -xzf /tmp/go.tar.gz
     rm /tmp/go.tar.gz
     /usr/local/go/bin/go version
 
-install-rust:
+install-rust: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
-    apt-get update
+    # Check if Rust is already installed
+    if {{vscode}} bash -lc 'command -v rustc && command -v cargo' &>/dev/null; then
+        echo "Rust is already installed, skipping..."
+        {{vscode}} bash -lc 'rustc --version && cargo --version'
+        exit 0
+    fi
     apt-get install -y --no-install-recommends ca-certificates curl
-    rm -rf /var/lib/apt/lists/*
     mkdir -p {{CARGO_HOME}} {{RUSTUP_HOME}}
     chown -R vscode:vscode {{CARGO_HOME}} {{RUSTUP_HOME}}
     {{vscode}} bash -lc 'curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable'
@@ -83,39 +105,32 @@ install-node:
     set -euxo pipefail
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
     apt-get install -y --no-install-recommends nodejs
-    rm -rf /var/lib/apt/lists/*
     node --version
     npm --version
 
-install-java:
+install-java: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
-    apt-get update
     apt-get install -y --no-install-recommends openjdk-21-jdk
-    rm -rf /var/lib/apt/lists/*
     java -version
     javac -version
 
-install-maven: install-java
+install-maven: install-java apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
     MAVEN_VERSION="3.9.9"
-    apt-get update
     apt-get install -y --no-install-recommends wget tar
-    rm -rf /var/lib/apt/lists/*
     wget -q -O /tmp/maven.tar.gz "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz"
     tar -C /opt -xzf /tmp/maven.tar.gz
     ln -sf "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin/mvn
     rm /tmp/maven.tar.gz
     mvn --version
 
-install-gradle: install-java
+install-gradle: install-java apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
     GRADLE_VERSION="8.11.1"
-    apt-get update
     apt-get install -y --no-install-recommends wget unzip
-    rm -rf /var/lib/apt/lists/*
     wget -q -O /tmp/gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
     unzip -q /tmp/gradle.zip -d /opt
     ln -sf "/opt/gradle-${GRADLE_VERSION}/bin/gradle" /usr/local/bin/gradle
@@ -137,10 +152,9 @@ install-azure-cli:
     az version
     az bicep install
 
-install-github-cli:
+install-github-cli: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
-    apt-get update
     apt-get install -y --no-install-recommends curl ca-certificates gnupg
     mkdir -p -m 0755 /etc/apt/keyrings
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
@@ -148,16 +162,12 @@ install-github-cli:
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
     apt-get update
     apt-get install -y --no-install-recommends gh
-    apt-get clean
-    rm -rf /var/lib/apt/lists/*
     gh --version
 
-install-homebrew:
+install-homebrew: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
-    apt-get update
     apt-get install -y --no-install-recommends build-essential procps curl file git
-    rm -rf /var/lib/apt/lists/*
     {{vscode}} bash -lc 'if [ ! -d /home/linuxbrew/.linuxbrew ]; then NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; fi'
     {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew update'
     printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/profile.d/homebrew.sh
@@ -172,12 +182,10 @@ install-brew-opencode: install-homebrew
 install-cli-npm: configure-npm-prefix
     {{vscode}} bash -lc 'npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush @github/copilot'
 
-install-llm:
+install-llm: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
-    apt-get update
     apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-dev build-essential curl git
-    rm -rf /var/lib/apt/lists/*
     python3 -m venv /opt/llm-env
     chown -R vscode:vscode /opt/llm-env
     {{vscode}} bash -lc '/opt/llm-env/bin/pip install --upgrade pip'
@@ -194,13 +202,11 @@ install-llm-gpt4all: install-llm
     # Note: gpt4all may have shared library dependencies issues on some systems
     {{vscode}} bash -lc '/opt/llm-env/bin/pip install llm-gpt4all'
 
-install-wassette:
+install-wassette: install-rust apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
-    apt-get update
     apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev
-    rm -rf /var/lib/apt/lists/*
-    {{vscode}} bash -lc '. "$HOME/.cargo/env" && cargo install --git https://github.com/microsoft/wassette --{{WASSETTE_REF_TYPE}} {{WASSETTE_REF}} wassette-mcp-server && wassette --version'
+    {{vscode}} bash -lc '. "$HOME/.cargo/env" && CARGO_BUILD_JOBS=1 cargo install --git https://github.com/microsoft/wassette --{{WASSETTE_REF_TYPE}} {{WASSETTE_REF}} wassette-mcp-server && wassette --version'
 
 link-wassette: install-wassette
     #!/usr/bin/env bash
