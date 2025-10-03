@@ -8,6 +8,8 @@ CONTAINER_CMD := env_var_or_default("JUST_CONTAINER_CMD", "bash")
 WASSETTE_REF := env_var_or_default("WASSETTE_REF", "main")
 WASSETTE_REF_TYPE := env_var_or_default("WASSETTE_REF_TYPE", "branch")
 PORT := env_var_or_default("PORT", "8080")
+CONTAINER_MEMORY := env_var_or_default("CONTAINER_MEMORY", "4g")
+CONTAINER_CPUS := env_var_or_default("CONTAINER_CPUS", "2")
 
 export CARGO_HOME := "/home/vscode/.cargo"
 export RUSTUP_HOME := "/home/vscode/.rustup"
@@ -253,4 +255,10 @@ run-macos-container:
     #!/usr/bin/env bash
     set -euxo pipefail
     container system start || true
-    container run --rm -it --publish {{PORT}}:8080 --volume "$(pwd)":/pwd --workdir /pwd {{IMAGE}} {{CONTAINER_CMD}}
+    container run --rm -it \
+        --memory {{CONTAINER_MEMORY}} \
+        --cpus {{CONTAINER_CPUS}} \
+        --publish {{PORT}}:8080 \
+        --volume "$(pwd)":/pwd \
+        --workdir /pwd \
+        {{IMAGE}} {{CONTAINER_CMD}}
