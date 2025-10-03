@@ -19,7 +19,7 @@ alias default := list
 list:
     just --list
 
-run-sequential *recipes:
+run *recipes:
     #!/usr/bin/env bash
     set -euxo pipefail
     for recipe in {{recipes}}; do
