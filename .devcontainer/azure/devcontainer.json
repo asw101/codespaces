@@ -11,6 +11,7 @@
 		"vscode": {
 			"extensions": [
 				"golang.go",
+				"stateful.runme",
 				"ms-azuretools.vscode-bicep",
 				"ms-azuretools.vscode-azureresourcegroups",
 				"GitHub.copilot"

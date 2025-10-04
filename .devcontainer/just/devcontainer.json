@@ -19,5 +19,6 @@
       ]
     }
   },
+  "postCreateCommand": "bash -lc 'mkdir -p .vscode && [ -f .vscode/mcp.json ] || cp /opt/wassette/mcp.json .vscode/mcp.json'",
   "postStartCommand": "just --list"
 }

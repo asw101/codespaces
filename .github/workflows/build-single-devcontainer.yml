@@ -8,19 +8,15 @@ on:
         required: true
         type: choice
         options:
-          - 'default-container'
-          - 'codex-container'
-          - 'ai-container'
-          - 'llm-container'
-          - 'wassette-container'
           - 'just'
-        default: 'default-container'
+          - 'default-container'
+        default: 'just'
       image_tag:
         description: 'Image tag (e.g., latest, v1.0.0)'
         required: false
         default: 'latest'
       build_args:
-        description: 'Build arguments (comma-separated, e.g., INSTALL_ALL=true,GO_VERSION=1.24.0)'
+        description: 'Build arguments (comma-separated, e.g., INSTALL_ALL=true,GO_VERSION=1.25.1)'
         required: false
         type: string
 
