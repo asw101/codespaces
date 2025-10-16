@@ -3,7 +3,7 @@ set shell := ["bash", "-uc"]
 arch := `uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/'`
 GO_VERSION := env_var_or_default("GO_VERSION", "1.25.1")
 TARGETARCH := env_var_or_default("TARGETARCH", arch)
-IMAGE := env_var_or_default("JUST_IMAGE", "just-dev:latest")
+IMAGE := env_var_or_default("JUST_IMAGE", "just:latest")
 CONTAINER_CMD := env_var_or_default("JUST_CONTAINER_CMD", "bash")
 WASSETTE_REF := env_var_or_default("WASSETTE_REF", "main")
 WASSETTE_REF_TYPE := env_var_or_default("WASSETTE_REF_TYPE", "branch")
@@ -135,8 +135,9 @@ install-gradle: install-java apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
     GRADLE_VERSION="8.11.1"
-    apt-get install -y --no-install-recommends wget unzip
-    wget -q -O /tmp/gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+    apt-get install -y --no-install-recommends curl unzip
+    curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
+        -o /tmp/gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
     unzip -q /tmp/gradle.zip -d /opt
     ln -sf "/opt/gradle-${GRADLE_VERSION}/bin/gradle" /usr/local/bin/gradle
     rm /tmp/gradle.zip
