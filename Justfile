@@ -231,6 +231,13 @@ link-wassette: install-wassette
     ln -sf /home/vscode/.cargo/bin/wassette /usr/local/bin/wassette
     ls -la /usr/local/bin/wassette
 
+setup-mcp-config:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    mkdir -p .vscode
+    [ -f .vscode/mcp.json ] || cp /opt/wassette/mcp.json .vscode/mcp.json
+    echo "MCP config installed to .vscode/mcp.json"
+
 install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-cli-npm install-llm install-llm-plugins install-wassette link-wassette
     @echo "All components installed"
 
