@@ -184,8 +184,20 @@ install-brew-codex: install-homebrew
 install-brew-opencode: install-homebrew
     {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew install sst/tap/opencode'
 
-install-cli-npm: configure-npm-prefix
-    {{vscode}} bash -lc 'npm install -g @anthropic-ai/claude-code @google/gemini-cli @charmland/crush @github/copilot'
+install-cli-claude: configure-npm-prefix
+    {{vscode}} bash -lc 'npm install -g @anthropic-ai/claude-code'
+
+install-cli-gemini: configure-npm-prefix
+    {{vscode}} bash -lc 'npm install -g @google/gemini-cli'
+
+install-cli-crush: configure-npm-prefix
+    {{vscode}} bash -lc 'npm install -g @charmland/crush'
+
+install-cli-copilot: configure-npm-prefix
+    {{vscode}} bash -lc 'npm install -g @github/copilot'
+
+install-cli-npm: install-cli-claude install-cli-gemini install-cli-crush install-cli-copilot
+    @echo "All AI CLI tools installed"
 
 install-llm: apt-update
     #!/usr/bin/env bash
@@ -219,7 +231,7 @@ link-wassette: install-wassette
     ln -sf /home/vscode/.cargo/bin/wassette /usr/local/bin/wassette
     ls -la /usr/local/bin/wassette
 
-install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-azure-cli install-github-cli install-homebrew install-brew-codex install-brew-opencode install-cli-npm install-llm install-llm-plugins install-wassette link-wassette
+install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-cli-npm install-llm install-llm-plugins install-wassette link-wassette
     @echo "All components installed"
 
 build-docker:
