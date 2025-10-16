@@ -4,7 +4,7 @@
   // "build": {
   //   "dockerfile": "../just/Dockerfile",
   //   "args": {
-  //     "INSTALL_ALL": "true"
+  //     "JUST_RECIPE": "install-all"
   //   }
   // },
   "features": {},

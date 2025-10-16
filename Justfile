@@ -269,7 +269,7 @@ macos-build-container-all:
     # Build a container image with all components installed
     container system start || true
     IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
-    container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
+    container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg JUST_RECIPE=install-all .
 
 macos-run-container:
     #!/usr/bin/env bash
@@ -326,7 +326,7 @@ docker-build-all:
     #!/usr/bin/env bash
     set -euxo pipefail
     IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
-    docker build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
+    docker build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg JUST_RECIPE=install-all .
 
 docker-run:
     docker run --rm -it \

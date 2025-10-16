@@ -301,7 +301,7 @@ The repository includes a GitHub Actions workflow for building devcontainer imag
 4. Configure the build:
    - **DevContainer to build**: Select `just`
    - **Image tag**: Specify the tag (e.g., `latest`, `all`, `v1.0.0`)
-   - **Build arguments**: Optional build arguments (comma-separated, e.g., `INSTALL_ALL=true,GO_VERSION=1.24.0`)
+   - **Build arguments**: Optional build arguments (comma-separated, e.g., `JUST_RECIPE=install-all,GO_VERSION=1.24.0`)
 
 ### Build Examples
 
@@ -317,7 +317,7 @@ Result: `ghcr.io/owner/repo/just:latest`
 ```
 DevContainer: just
 Image tag: all
-Build arguments: INSTALL_ALL=true
+Build arguments: JUST_RECIPE=install-all
 ```
 Result: `ghcr.io/owner/repo/just:all`
 
@@ -325,13 +325,13 @@ Result: `ghcr.io/owner/repo/just:all`
 ```
 DevContainer: just
 Image tag: go1.24-full
-Build arguments: INSTALL_ALL=true,GO_VERSION=1.24.0,TARGETARCH=arm64
+Build arguments: JUST_RECIPE=install-all,GO_VERSION=1.24.0,TARGETARCH=arm64
 ```
 Result: `ghcr.io/owner/repo/just:go1.24-full` with Go 1.24.0 and all components
 
 ### Available Build Arguments
 
-- `INSTALL_ALL` - Set to `true` to install all components during build (default: `false`)
+- `JUST_RECIPE` - Just recipe to run during build (e.g., `install-all` to install all components, default: empty)
 - `GO_VERSION` - Go version to install (default: `1.25.1`)
 - `TARGETARCH` - Target architecture: `amd64` or `arm64` (default: auto-detected)
 

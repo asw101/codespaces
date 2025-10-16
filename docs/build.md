@@ -96,7 +96,7 @@ These commands work with macOS Container CLI (`container` command):
 ### Build
 
 - `just macos-build-container` - Build container image with default settings
-- `just macos-build-container-all` - Build container image with `INSTALL_ALL=true`
+- `just macos-build-container-all` - Build container image with `JUST_RECIPE=install-all`
 
 ### Run & Manage
 
@@ -114,7 +114,7 @@ These commands work with standard Docker:
 ### Build
 
 - `just docker-build` - Build Docker image with default settings
-- `just docker-build-all` - Build Docker image with `INSTALL_ALL=true`
+- `just docker-build-all` - Build Docker image with `JUST_RECIPE=install-all`
 
 ### Run & Manage
 

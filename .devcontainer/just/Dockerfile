@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 ARG TARGETARCH
 ARG GO_VERSION=1.25.1
-ARG INSTALL_ALL=false
+ARG JUST_RECIPE=""
 
 ENV TARGETARCH=${TARGETARCH}
 ENV GO_VERSION=${GO_VERSION}
@@ -30,12 +30,15 @@ RUN mkdir -p ${CARGO_HOME} /home/vscode/.rustup /home/vscode/.npm-global \
 
 WORKDIR /workspace
 COPY Justfile ./
+COPY Justfile /home/vscode/Justfile
 COPY .devcontainer/just/mcp.json /opt/wassette/mcp.json
 
-# Optionally install all components during build
-RUN if [ "${INSTALL_ALL}" = "true" ]; then \
+# Optionally run a just recipe during build (e.g., install-all)
+RUN if [ -n "${JUST_RECIPE}" ]; then \
         echo "Building for TARGETARCH=${TARGETARCH}" && \
-        just install-all; \
+        echo "Running just recipe: ${JUST_RECIPE}" && \
+        just ${JUST_RECIPE} && \
+        rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
     fi
 
 CMD ["just", "--list"]

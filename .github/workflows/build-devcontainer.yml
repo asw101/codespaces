@@ -16,7 +16,7 @@ on:
         required: false
         default: 'latest'
       build_args:
-        description: 'Build arguments (comma-separated, e.g., INSTALL_ALL=true,GO_VERSION=1.25.1)'
+        description: 'Build arguments (comma-separated, e.g., JUST_RECIPE=install-all,GO_VERSION=1.25.1)'
         required: false
         type: string
 
