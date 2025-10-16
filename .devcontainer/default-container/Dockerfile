@@ -2,11 +2,23 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 ARG TARGETARCH=amd64
-ENV GO_VERSION=1.25.0
+ENV GO_VERSION=1.25.1
 
-# Install Go
 # Install any project-specific tools not available as Dev Container Features
 # Example: Installing a specific version of a tool
+
+# Install the tooling required to run the Justfile and fetch artifacts
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        just \
+        sudo \
+        ca-certificates \
+        curl \
+        wget \
+        gnupg \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install latest Go version
 RUN case "${TARGETARCH}" in \
         amd64) GO_ARCH=amd64 ;; \
