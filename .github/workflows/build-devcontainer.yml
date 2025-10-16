@@ -104,13 +104,14 @@ jobs:
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
 
-      - name: Upload digest
+      - name: Upload digests
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ hashFiles(format('matrix.platform={0}', matrix.platform)) }}
+          name: digests-${{ github.job }}-${{ github.run_id }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+          compression-level: 6
 
   merge:
     runs-on: ubuntu-latest
