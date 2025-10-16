@@ -20,9 +20,14 @@ on:
         required: false
         type: string
 
+concurrency:
+  group: build-${{ github.event.inputs.devcontainer_choice }}-${{ github.event.inputs.image_tag }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     permissions:
       contents: read
       packages: write
@@ -90,6 +95,8 @@ jobs:
           cache-from: type=gha,scope=${{ github.event.inputs.devcontainer_choice }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=${{ github.event.inputs.devcontainer_choice }}-${{ matrix.platform }}
           outputs: type=image,name=ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }},push-by-digest=true,name-canonical=true,push=true
+          sbom: true
+          provenance: mode=max
 
       - name: Export digest
         run: |
@@ -100,7 +107,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ strategy.job-index }}
+          name: digests-${{ hashFiles(format('matrix.platform={0}', matrix.platform)) }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -163,3 +170,19 @@ jobs:
         run: |
           echo "Built devcontainer: ${{ github.event.inputs.devcontainer_choice }}"
           echo "Tags: ${{ steps.meta.outputs.tags }}"
+          
+          # Add to job summary
+          echo "## 🐳 DevContainer Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Container:** \`${{ github.event.inputs.devcontainer_choice }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platforms:** \`linux/amd64\`, \`linux/arm64/v8\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Pull Command" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:${{ github.event.inputs.image_tag || 'latest' }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
