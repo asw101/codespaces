@@ -1,5 +1,7 @@
 # codespaces
 
+Dev Container configurations for AI development with Go, Rust, Node.js, Java, and modern AI tools. Built on a flexible Just-based recipe system that lets you install tools on-demand or use fully prebuilt images.
+
 ## Containers
 
 ### AI - just:latest
