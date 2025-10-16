@@ -98,10 +98,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
             type=raw,value=${{ github.event.inputs.image_tag || 'latest' }}
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.event.inputs.image_tag == 'latest' || github.event.inputs.image_tag == '' }}
 
       - name: Build and push by digest
         id: build
@@ -170,10 +168,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
             type=raw,value=${{ github.event.inputs.image_tag || 'latest' }}
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.event.inputs.image_tag == 'latest' || github.event.inputs.image_tag == '' }}
 
       - name: Create multi-arch manifest
         run: |
