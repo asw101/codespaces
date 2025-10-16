@@ -184,6 +184,9 @@ install-brew-codex: install-homebrew
 install-brew-opencode: install-homebrew
     {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew install sst/tap/opencode'
 
+install-brew-wassette: install-homebrew
+    {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew tap microsoft/wassette https://github.com/microsoft/wassette && brew install wassette'
+
 install-cli-claude: configure-npm-prefix
     {{vscode}} bash -lc 'npm install -g @anthropic-ai/claude-code'
 
