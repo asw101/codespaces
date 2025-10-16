@@ -256,6 +256,19 @@ macos-build-container-all:
     IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
     container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
 
+macos-run-container:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    # Run a container using the macOS container command
+    container system start || true
+    container run --rm -it \
+        --memory {{CONTAINER_MEMORY}} \
+        --cpus {{CONTAINER_CPUS}} \
+        --publish {{PORT}}:8080 \
+        --volume "$(pwd)":/pwd \
+        --workdir /pwd \
+        {{IMAGE}} {{CONTAINER_CMD}}
+
 macos-stop-containers:
     #!/usr/bin/env bash
     set -eux
