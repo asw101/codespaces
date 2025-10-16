@@ -241,7 +241,7 @@ setup-mcp-config:
     [ -f .vscode/mcp.json ] || cp /opt/wassette/mcp.json .vscode/mcp.json
     echo "MCP config installed to .vscode/mcp.json"
 
-install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-cli-npm install-llm install-llm-plugins install-wassette link-wassette
+install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-brew-wassette install-cli-npm install-llm install-llm-plugins
     @echo "All components installed"
 
 macos-build-container:
