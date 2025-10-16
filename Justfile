@@ -223,7 +223,7 @@ install-wassette: install-rust apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
     apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev
-    {{vscode}} bash -lc '. "$HOME/.cargo/env" && CARGO_BUILD_JOBS=1 cargo install --git https://github.com/microsoft/wassette --{{WASSETTE_REF_TYPE}} {{WASSETTE_REF}} wassette-mcp-server && wassette --version'
+    {{vscode}} bash -lc '. "$HOME/.cargo/env" && CARGO_BUILD_JOBS=1 CARGO_PROFILE_RELEASE_LTO=off cargo install --git https://github.com/microsoft/wassette --{{WASSETTE_REF_TYPE}} {{WASSETTE_REF}} wassette-mcp-server && wassette --version'
 
 link-wassette: install-wassette
     #!/usr/bin/env bash
@@ -234,46 +234,94 @@ link-wassette: install-wassette
 install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-cli-npm install-llm install-llm-plugins install-wassette link-wassette
     @echo "All components installed"
 
-build-docker:
+macos-build-container:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    # Build a container image using the container command
+    container system start || true
+    container build -t {{IMAGE}} -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} .
+
+macos-build-container-all:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    # Build a container image with all components installed
+    container system start || true
+    IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
+    container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
+
+macos-stop-containers:
+    #!/usr/bin/env bash
+    set -eux
+    # Stop all running containers matching the configured image
+    container ps -q -f ancestor={{IMAGE}} | xargs -r container stop || true
+    docker ps -q -f ancestor={{IMAGE}} | xargs -r docker stop || true
+
+macos-restart-containers:
+    #!/usr/bin/env bash
+    set -eux
+    # Restart the macOS container system
+    container system stop
+    container system start
+
+macos-list-containers-json:
+    #!/usr/bin/env bash
+    set -eux
+    # List containers in JSON format, filtering by the configured image
+    container ls --format json | jq -c '.[] | select(.configuration.image.reference | contains("{{IMAGE}}")?)' 2>/dev/null || echo "No containers found or error parsing JSON"
+
+macos-list-containers:
+    #!/usr/bin/env bash
+    set -eux
+    # Output container IDs matching the image (can be piped to container rm/kill)
+    container ls --format json | jq -r '.[] | select(.configuration.image.reference | contains("{{IMAGE}}")) | .configuration.id' 2>/dev/null
+
+macos-clean-containers:
+    #!/usr/bin/env bash
+    set -eux
+    # Kill all containers, then remove them
+    just macos-list-containers | xargs -r container kill || true
+    just macos-list-containers | xargs -r container rm -f || true
+
+# Docker container recipes (Linux/cross-platform)
+
+docker-build:
     docker build -t {{IMAGE}} -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} .
 
-build-docker-all:
+docker-build-all:
     #!/usr/bin/env bash
     set -euxo pipefail
     IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
     docker build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
 
-build-macos-container:
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    container system start || true
-    container build -t {{IMAGE}} -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} .
-
-build-macos-container-all:
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    container system start || true
-    IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
-    container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
-
-stop-containers:
-    #!/usr/bin/env bash
-    set -eux
-    # Stop all running containers based on the image
-    container ps -q -f ancestor={{IMAGE}} | xargs -r container stop || true
-    docker ps -q -f ancestor={{IMAGE}} | xargs -r docker stop || true
-
-run-docker:
-    docker run --rm -it -p {{PORT}}:8080 -v "$(pwd)":/pwd -w /pwd {{IMAGE}} {{CONTAINER_CMD}}
-
-run-macos-container:
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    container system start || true
-    container run --rm -it \
+docker-run:
+    docker run --rm -it \
         --memory {{CONTAINER_MEMORY}} \
         --cpus {{CONTAINER_CPUS}} \
-        --publish {{PORT}}:8080 \
-        --volume "$(pwd)":/pwd \
-        --workdir /pwd \
+        -p {{PORT}}:8080 \
+        -v "$(pwd)":/pwd \
+        -w /pwd \
         {{IMAGE}} {{CONTAINER_CMD}}
+
+docker-stop:
+    #!/usr/bin/env bash
+    set -eux
+    # Stop all running containers matching the configured image
+    docker ps -q -f ancestor={{IMAGE}} | xargs -r docker stop || true
+
+docker-restart:
+    #!/usr/bin/env bash
+    set -eux
+    # Restart Docker daemon
+    docker restart || true
+
+docker-list:
+    #!/usr/bin/env bash
+    set -eux
+    # List all containers matching the configured image
+    docker ps -a -f ancestor={{IMAGE}}
+
+docker-clean:
+    #!/usr/bin/env bash
+    set -eux
+    # Kill and remove all containers matching the configured image
+    docker ps -a -q -f ancestor={{IMAGE}} | xargs -r docker rm -f || true
