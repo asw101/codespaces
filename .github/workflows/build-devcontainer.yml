@@ -9,7 +9,7 @@ on:
         type: choice
         options:
           - 'just'
-          - 'default-container'
+          - 'default'
         default: 'just'
       image_tag:
         description: 'Image tag (e.g., latest, v1.0.0)'
