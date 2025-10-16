@@ -187,6 +187,13 @@ install-brew-opencode: install-homebrew
 install-brew-wassette: install-homebrew
     {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew tap microsoft/wassette https://github.com/microsoft/wassette && brew install wassette'
 
+install-brew-azure-cli: install-homebrew
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew install azure-cli'
+    {{vscode}} bash -lc 'az version'
+    # {{vscode}} bash -lc 'az bicep install'
+
 install-cli-claude: configure-npm-prefix
     {{vscode}} bash -lc 'npm install -g @anthropic-ai/claude-code'
 
@@ -241,7 +248,7 @@ setup-mcp-config:
     [ -f .vscode/mcp.json ] || cp /opt/wassette/mcp.json .vscode/mcp.json
     echo "MCP config installed to .vscode/mcp.json"
 
-install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-brew-wassette install-cli-npm install-llm install-llm-plugins
+install-all: install-go install-rust install-node install-java install-maven install-gradle configure-npm-prefix install-github-cli install-homebrew install-brew-codex install-brew-opencode install-brew-wassette install-brew-azure-cli install-cli-npm install-llm install-llm-plugins
     @echo "All components installed"
 
 macos-build-container:
