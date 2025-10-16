@@ -228,7 +228,7 @@ install-wassette: install-rust apt-update
     apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev
     {{vscode}} bash -lc '. "$HOME/.cargo/env" && CARGO_BUILD_JOBS=1 CARGO_PROFILE_RELEASE_LTO=off cargo install --git https://github.com/microsoft/wassette --{{WASSETTE_REF_TYPE}} {{WASSETTE_REF}} wassette-mcp-server && wassette --version'
 
-link-wassette: install-wassette
+install-wassette-link: install-wassette
     #!/usr/bin/env bash
     set -euxo pipefail
     ln -sf /home/vscode/.cargo/bin/wassette /usr/local/bin/wassette
