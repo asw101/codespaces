@@ -1,0 +1,103 @@
+set shell := ["bash", "-uc"]
+
+# List available recipes
+list:
+    just --list
+
+# Get logs from the latest GitHub Actions workflow run
+get-latest-logs output="latest-run.log":
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    echo "Fetching latest workflow run..."
+    
+    # Get the latest run ID
+    RUN_ID=$(gh run list --limit 1 --json databaseId --jq '.[0].databaseId')
+    
+    if [ -z "$RUN_ID" ]; then
+        echo "Error: No workflow runs found"
+        exit 1
+    fi
+    
+    echo "Latest run ID: $RUN_ID"
+    
+    # Get the logs and save to file
+    gh run view "$RUN_ID" --log > "{{output}}"
+    
+    echo "Logs saved to: {{output}}"
+    echo "Run 'just analyze-logs' to get AI analysis of the failure"
+
+# Get logs from a specific workflow run by ID
+get-logs run_id output="run.log":
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    echo "Fetching logs for run ID: {{run_id}}"
+    gh run view {{run_id}} --log > "{{output}}"
+    echo "Logs saved to: {{output}}"
+
+# List recent workflow runs
+list-runs limit="10":
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    echo "Recent workflow runs:"
+    gh run list --limit {{limit}} --json databaseId,status,conclusion,name,createdAt,displayTitle
+
+# Get detailed status of the latest workflow run
+status-latest:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    echo "Latest workflow run status:"
+    gh run list --limit 1 --json databaseId,status,conclusion,name,createdAt,displayTitle,workflowName,event,headBranch
+    echo ""
+    echo "Jobs in latest run:"
+    RUN_ID=$(gh run list --limit 1 --json databaseId --jq '.[0].databaseId')
+    gh run view "$RUN_ID"
+
+# Get logs from the latest failed workflow run
+get-failed-logs output="failed-run.log":
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    echo "Fetching latest failed workflow run..."
+    
+    # Get the latest failed run ID
+    RUN_ID=$(gh run list --limit 50 --json databaseId,conclusion --jq '.[] | select(.conclusion=="failure") | .databaseId' | head -n 1)
+    
+    if [ -z "$RUN_ID" ]; then
+        echo "Error: No failed workflow runs found in the last 50 runs"
+        exit 1
+    fi
+    
+    echo "Latest failed run ID: $RUN_ID"
+    
+    # Get the logs and save to file
+    gh run view "$RUN_ID" --log > "{{output}}"
+    
+    echo "Logs saved to: {{output}}"
+    echo "Run 'just analyze-logs {{output}}' to get AI analysis of the failure"
+
+# Watch workflow runs in real-time
+watch:
+    gh run watch
+
+# Re-run the latest failed workflow
+rerun-failed:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    RUN_ID=$(gh run list --limit 50 --json databaseId,conclusion --jq '.[] | select(.conclusion=="failure") | .databaseId' | head -n 1)
+    if [ -z "$RUN_ID" ]; then
+        echo "Error: No failed workflow runs found"
+        exit 1
+    fi
+    echo "Re-running failed workflow: $RUN_ID"
+    gh run rerun "$RUN_ID"
+
+# Cancel the latest running workflow
+cancel-latest:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    RUN_ID=$(gh run list --limit 1 --json databaseId,status --jq '.[] | select(.status=="in_progress") | .databaseId' | head -n 1)
+    if [ -z "$RUN_ID" ]; then
+        echo "No running workflows found"
+        exit 1
+    fi
+    echo "Cancelling workflow run: $RUN_ID"
+    gh run cancel "$RUN_ID"
