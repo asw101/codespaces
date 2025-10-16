@@ -1,4 +1,4 @@
-name: Build Single DevContainer
+name: Build DevContainer
 
 on:
   workflow_dispatch:
