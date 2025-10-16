@@ -31,21 +31,72 @@ cd codespaces
 
 Pull and run the container with Docker on any platform:
 
+**just:latest** (minimal install-on-demand image):
 ```bash
-docker run --rm -it --memory 4g --cpus 2 -p 8080:8080 -v "$(pwd)":/pwd -w /pwd ghcr.io/asw101/codespaces/just:latest bash
+docker run --rm -it \
+  --memory 4g \
+  --cpus 2 \
+  -p 8080:8080 \
+  -v "$(pwd)":/pwd \
+  -w /pwd \
+  ghcr.io/asw101/codespaces/just:latest bash
+```
+
+**just:all** (fully prebuilt image with all tools):
+```bash
+docker run --rm -it \
+  --memory 4g \
+  --cpus 2 \
+  -p 8080:8080 \
+  -v "$(pwd)":/pwd \
+  -w /pwd \
+  ghcr.io/asw101/codespaces/just:all bash
 ```
 
 ### Using macOS Containers
 
-Start the container system and run the container
+Start the container system and run the container using Apple's [`container`](https://github.com/apple/container):
 
 ```bash
 container system start || true
 ```
 
-Pull and run the container using macOS built-in containerization:
+Pull and run the container using macOS container:
 
+**just:latest** (minimal install-on-demand image):
 ```bash
-container run --rm -it --memory 4g --cpus 2 --publish 8080:8080 --volume "$(pwd)":/pwd --workdir /pwd ghcr.io/asw101/codespaces/just:latest bash
+container run --rm -it \
+  --memory 4g \
+  --cpus 2 \
+  --publish 8080:8080 \
+  --volume "$(pwd)":/pwd \
+  --workdir /pwd \
+  ghcr.io/asw101/codespaces/just:latest bash
 ```
 
+**just:all** (fully prebuilt image with all tools):
+```bash
+container run --rm -it \
+  --memory 4g \
+  --cpus 2 \
+  --publish 8080:8080 \
+  --volume "$(pwd)":/pwd \
+  --workdir /pwd \
+  ghcr.io/asw101/codespaces/just:all bash
+```
+
+### Using Justfile Recipes
+
+If you've cloned the repository, you can use the [`Justfile`](Justfile) recipes to build and run containers:
+
+```bash
+# Docker
+just docker-build        # Build the just:latest image
+just docker-build-all    # Build the just:all image
+just docker-run          # Run the container
+
+# macOS container
+just macos-build-container      # Build the just:latest image
+just macos-build-container-all  # Build the just:all image
+just macos-run-container        # Run the container
+```
