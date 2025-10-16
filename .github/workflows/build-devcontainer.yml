@@ -43,11 +43,17 @@ jobs:
 
       - name: Display build parameters
         run: |
+          devcontainer="${{ github.event.inputs.devcontainer_choice }}"
+          image_name="${devcontainer%-container}"
+          image_tag="${{ github.event.inputs.image_tag || 'latest' }}"
+          image_url="ghcr.io/${{ github.repository }}/${image_name}:${image_tag}"
+          
           echo "::group::🔧 Build Configuration"
           echo "DevContainer: ${{ github.event.inputs.devcontainer_choice }}"
-          echo "Image Tag: ${{ github.event.inputs.image_tag || 'latest' }}"
+          echo "Image Tag: ${image_tag}"
           echo "Platform: ${{ matrix.platform }}"
           echo "Build Arguments: ${{ github.event.inputs.build_args || '(none)' }}"
+          echo "Image: ${image_url}"
           echo "::endgroup::"
           
           # Add to job summary
@@ -56,9 +62,10 @@ jobs:
           echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
           echo "| **DevContainer** | \`${{ github.event.inputs.devcontainer_choice }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Image Tag** | \`${{ github.event.inputs.image_tag || 'latest' }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image Tag** | \`${image_tag}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Platform** | \`${{ matrix.platform }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Build Arguments** | \`${{ github.event.inputs.build_args || '(none)' }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | \`${image_url}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
       - name: Log in to GitHub Container Registry
@@ -182,24 +189,3 @@ jobs:
       - name: Inspect multi-arch image
         run: |
           docker buildx imagetools inspect ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:${{ github.event.inputs.image_tag || 'latest' }}
-
-      - name: Output image details
-        run: |
-          echo "Built devcontainer: ${{ github.event.inputs.devcontainer_choice }}"
-          echo "Tags: ${{ steps.meta.outputs.tags }}"
-          
-          # Add to job summary
-          echo "## 🐳 DevContainer Build Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Container:** \`${{ github.event.inputs.devcontainer_choice }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Platforms:** \`linux/amd64\`, \`linux/arm64/v8\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Pull Command" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}:${{ github.event.inputs.image_tag || 'latest' }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
