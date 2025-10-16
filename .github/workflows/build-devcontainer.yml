@@ -159,7 +159,7 @@ jobs:
         run: |
           docker buildx imagetools create \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}@sha256:%s ' /tmp/digests/*)
+            $(for digest in /tmp/digests/*; do echo "ghcr.io/${{ github.repository }}/${{ steps.image-name.outputs.name }}@sha256:$(basename $digest)"; done)
         env:
           DOCKER_METADATA_OUTPUT_JSON: ${{ steps.meta.outputs.json }}
 
