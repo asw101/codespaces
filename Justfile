@@ -174,7 +174,11 @@ install-homebrew: apt-update
     #!/usr/bin/env bash
     set -euxo pipefail
     apt-get install -y --no-install-recommends build-essential procps curl file git
-    {{vscode}} bash -lc 'if [ ! -d /home/linuxbrew/.linuxbrew ]; then NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; fi'
+    # Create and setup Homebrew directory with proper permissions before installation
+    mkdir -p /home/linuxbrew/.linuxbrew
+    chown -R vscode:vscode /home/linuxbrew
+    # Install Homebrew as vscode user without needing sudo for directory creation
+    {{vscode}} bash -lc 'if [ ! -d /home/linuxbrew/.linuxbrew/bin ]; then NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; fi'
     {{vscode}} bash -lc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew update'
     printf 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"\n' > /etc/profile.d/homebrew.sh
     {{vscode}} bash -lc 'if ! grep -q "brew shellenv" ~/.bashrc; then echo "eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"" >> ~/.bashrc; fi'
