@@ -30,7 +30,7 @@ RUN mkdir -p ${CARGO_HOME} /home/vscode/.rustup /home/vscode/.npm-global \
 
 WORKDIR /workspace
 COPY Justfile ./
-COPY mcp.json /opt/wassette/mcp.json
+COPY .devcontainer/just/mcp.json /opt/wassette/mcp.json
 
 # Optionally install all components during build
 RUN if [ "${INSTALL_ALL}" = "true" ]; then \

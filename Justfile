@@ -235,26 +235,26 @@ install-all: install-go install-rust install-node install-java install-maven ins
     @echo "All components installed"
 
 build-docker:
-    docker build -t {{IMAGE}} --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} {{DEVCONTAINER_JUST}}
+    docker build -t {{IMAGE}} -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} .
 
 build-docker-all:
     #!/usr/bin/env bash
     set -euxo pipefail
     IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
-    docker build -t "${IMAGE_BASE}:all" --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true {{DEVCONTAINER_JUST}}
+    docker build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
 
 build-macos-container:
     #!/usr/bin/env bash
     set -euxo pipefail
     container system start || true
-    container build -t {{IMAGE}} -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} {{DEVCONTAINER_JUST}}
+    container build -t {{IMAGE}} -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} .
 
 build-macos-container-all:
     #!/usr/bin/env bash
     set -euxo pipefail
     container system start || true
     IMAGE_BASE="$(echo {{IMAGE}} | cut -d: -f1)"
-    container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true {{DEVCONTAINER_JUST}}
+    container build -t "${IMAGE_BASE}:all" -f {{DEVCONTAINER_JUST}}/Dockerfile --build-arg TARGETARCH={{TARGETARCH}} --build-arg GO_VERSION={{GO_VERSION}} --build-arg INSTALL_ALL=true .
 
 stop-containers:
     #!/usr/bin/env bash
