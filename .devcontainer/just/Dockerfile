@@ -17,6 +17,7 @@ RUN apt-get update \
         curl \
         wget \
         gnupg \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Prepare directories used by Just recipes when running as the vscode user
