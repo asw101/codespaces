@@ -25,6 +25,9 @@ ENV CARGO_HOME=/home/vscode/.cargo
 ENV RUSTUP_HOME=/home/vscode/.rustup
 ENV PATH=/home/vscode/.npm-global/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/opt/llm-env/bin:/usr/local/go/bin:${PATH}
 
+# Configure system-wide PATH via /etc/environment for sudo sessions
+RUN echo 'PATH="/home/vscode/.npm-global/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/opt/llm-env/bin:/home/vscode/.cargo/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"' >> /etc/environment
+
 RUN mkdir -p ${CARGO_HOME} /home/vscode/.rustup /home/vscode/.npm-global \
     && chown -R vscode:vscode ${CARGO_HOME} /home/vscode/.rustup /home/vscode/.npm-global
 
